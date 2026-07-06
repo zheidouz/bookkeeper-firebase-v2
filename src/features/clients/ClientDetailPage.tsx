@@ -1,7 +1,7 @@
 // ClientDetailPage — /clients/:id. Renders the full client record in
 // read-only form, plus an Edit button (bookkeeper+admin) that opens
-// EditClientDialog. The "Attached forms" section is a static empty
-// state — slice #8 (attach-to-client) populates this list.
+// EditClientDialog. The "Attached forms" section is now driven by
+// AttachedFormsSection (slice #8 — attach-to-client).
 
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import AttachedFormsSection from "@/features/clients/AttachedFormsSection";
 import EditClientDialog from "@/features/clients/EditClientDialog";
 import { useClient } from "@/features/clients/useClient";
 import { useBookkeepers } from "@/features/clients/useBookkeepers";
@@ -197,22 +198,7 @@ export default function ClientDetailPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Attached forms</CardTitle>
-          <CardDescription>
-            Tax forms filed for this client.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div
-            data-testid="client-detail-attached-empty"
-            className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500"
-          >
-            No forms attached yet. Slice #8 will populate this.
-          </div>
-        </CardContent>
-      </Card>
+      <AttachedFormsSection client={client} />
 
       {canWrite && (
         <EditClientDialog

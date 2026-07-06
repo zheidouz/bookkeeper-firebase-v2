@@ -59,6 +59,29 @@ service cloud.firestore {
         && request.auth.token.role == "admin";
     }
 
+    // clientFormTasks/{taskId} — slice #8 (attach form to client).
+    // Any signed-in user can read non-archived tasks; admins can read
+    // archived tasks too (slice #15 owns the archive page).
+    // Create is admin+bookkeeper. Update + delete require the task to
+    // be pending AND the actor to be the assigned bookkeeper, OR admin.
+    // (PRD story 29: edit/remove only while pending.)
+    match /clientFormTasks/{taskId} {
+      allow read: if request.auth != null
+        && (resource == null
+            || resource.data.archived == false
+            || request.auth.token.role == "admin");
+      allow create: if request.auth != null
+        && request.auth.token.role in ["admin", "bookkeeper"];
+      allow update: if request.auth != null
+        && (request.auth.token.role == "admin"
+            || (request.auth.uid == resource.data.assignedBookkeeperId
+                && resource.data.status == "pending"));
+      allow delete: if request.auth != null
+        && (request.auth.token.role == "admin"
+            || (request.auth.uid == resource.data.assignedBookkeeperId
+                && resource.data.status == "pending"));
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
