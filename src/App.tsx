@@ -16,11 +16,20 @@ import ClientDetailPage from "@/features/clients/ClientDetailPage";
 // DropdownMenu, and StatusBadge). A Suspense wrapper around the
 // element shows a skeleton while the chunk fetches.
 const TasksPage = lazy(() => import("@/features/tasks/TasksPage"));
+const TaskDetailPage = lazy(() => import("@/features/tasks/TaskDetailPage"));
 
 function TasksPageWithSuspense() {
   return (
     <Suspense fallback={<div className="p-6 text-sm text-slate-500">Loading tasks…</div>}>
       <TasksPage />
+    </Suspense>
+  );
+}
+
+function TaskDetailPageWithSuspense() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-slate-500">Loading task…</div>}>
+      <TaskDetailPage />
     </Suspense>
   );
 }
@@ -53,6 +62,7 @@ const router = createBrowserRouter([
           { path: "/clients/:id", element: <ClientDetailPage /> },
           { path: "/tax-forms", element: <TaxFormsPage /> },
           { path: "/tasks", element: <TasksPageWithSuspense /> },
+          { path: "/tasks/:taskId", element: <TaskDetailPageWithSuspense /> },
           { path: "/archive", element: <NotFound /> },
           { path: "/users", element: <UsersPage /> },
           { path: "/settings", element: <NotFound /> },
