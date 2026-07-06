@@ -1,23 +1,46 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+
+import AppShell from "@/components/AppShell";
+import LoginPage from "@/features/auth/LoginPage";
+import RequireAuth from "@/features/auth/RequireAuth";
+import DashboardPlaceholder from "@/routes/DashboardPlaceholder";
+import NotFound from "@/routes/NotFound";
+
+/**
+ * App-wide router.
+ *
+ *   /login              public           → LoginPage
+ *   /                   protected (shell) → DashboardPlaceholder
+ *   /clients ...        protected (shell) → NotFound (placeholder)
+ *   *                   protected (shell) → NotFound
+ *
+ * Note: /login intentionally sits OUTSIDE the RequireAuth + AppShell wrapper
+ * so authenticated users who land on it are bounced to "/" by LoginPage's own
+ * internal <Navigate />, and unauthenticated users don't see a sidebar.
+ */
+const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [
+          { path: "/", element: <DashboardPlaceholder /> },
+          { path: "/clients", element: <NotFound /> },
+          { path: "/tax-forms", element: <NotFound /> },
+          { path: "/tasks", element: <NotFound /> },
+          { path: "/archive", element: <NotFound /> },
+          { path: "/users", element: <NotFound /> },
+          { path: "/settings", element: <NotFound /> },
+          { path: "*", element: <NotFound /> },
+        ],
+      },
+    ],
+  },
+  { path: "*", element: <Navigate to="/" replace /> },
+]);
 
 export default function App() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-      <Card className="w-full max-w-md border-emerald-500 border-2">
-        <CardHeader>
-          <CardTitle className="text-emerald-600">Bootstrapped</CardTitle>
-          <CardDescription>
-            Issue #2 — stack scaffold. The shell deploys.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-slate-600">
-            Vite + React 18 + TypeScript + Tailwind + Firebase emulator suite.
-            No auth, no routes — yet. Later slices fill this in.
-          </p>
-          <div className="mt-4 h-2 w-full rounded bg-emerald-500" />
-        </CardContent>
-      </Card>
-    </main>
-  );
+  return <RouterProvider router={router} />;
 }

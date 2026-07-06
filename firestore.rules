@@ -1,9 +1,17 @@
 rules_version = '2';
 
-// Locked-down placeholder. All reads/writes denied by default.
-// Later slices (auth, data model, rules hardening) relax these rules.
+// Auth shell (#3) — authenticated users can read their own profile doc.
+// All other collections / writes remain deny-all. Slice #5 (adminCreateUser)
+// and later slices relax writes for the appropriate collections.
+//
+// Custom-claim admin overrides for `users/*` lands in slice #17.
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
