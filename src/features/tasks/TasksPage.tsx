@@ -57,13 +57,12 @@ export default function TasksPage() {
 
   const handleEdit = useCallback(
     (row: { id: string }) => {
-      // Placeholder for slice #14 (task detail / edit dialog).
-      // For now, navigate to the client detail where the user can
-      // see the task in context.
-      const task = rows.find((r) => r.id === row.id);
-      if (task) navigate(`/clients/${task.clientId}`);
+      // Slice #14 owns the Edit dialog inside <TaskDetailPage>.
+      // Navigate the actor to the detail page where they can both
+      // see context and click the Edit / Archive / status actions.
+      navigate(`/tasks/${row.id}`);
     },
-    [navigate, rows],
+    [navigate],
   );
 
   const handleArchive = useCallback(async (row: { id: string }) => {
