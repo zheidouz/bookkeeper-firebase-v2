@@ -29,7 +29,7 @@ import {
   type App as AdminApp,
 } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
-import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
+import { getFirestore as getAdminFirestore, FieldValue as AdminFieldValue } from "firebase-admin/firestore";
 
 setLogLevel("error");
 
@@ -294,6 +294,16 @@ let adminApp: AdminApp;
       const adminFirestore = getAdminFirestore(adminApp);
       const collectionRef = adminFirestore.collection("taxForms");
 
+      // Self-seed: write the 18 canonical forms so this test is independent
+      // of test ordering. Admin SDK bypasses rules; merge=false to overwrite.
+      const seedsForSetup = birFormsSeed as unknown as Array<Record<string, unknown>>;
+      for (const seed of seedsForSetup) {
+        await adminFirestore.doc(`taxForms/${String(seed.formCode)}`).set(
+          { ...seed, createdAt: AdminFieldValue.serverTimestamp() },
+          { merge: false },
+        );
+      }
+
       const snap = await collectionRef.get();
       const existing = snap.docs.map((d) => {
         const data = d.data() as Record<string, unknown>;
@@ -335,12 +345,14 @@ let adminApp: AdminApp;
       const seeds = birFormsSeed as unknown as TaxFormSeed[];
       const results = mergeSeedForms(seeds, existing);
 
-      // No duplicates → no 'insert' actions, only 'update' for
-      // rows that already exist and match the seed.
+      // Re-running against a populated collection must NOT create new
+      // docs (no 'insert' actions) and should process all 18 seeds
+      // (updates + skips = 18).
       const inserts = results.filter((r) => r.action === "insert");
       const updates = results.filter((r) => r.action === "update");
+      const skips = results.filter((r) => r.action === "skip");
       expect(inserts.length).toBe(0);
-      expect(updates.length).toBeGreaterThanOrEqual(18);
+      expect(updates.length + skips.length).toBe(18);
     }, 60_000);
 
     it("rules: a user with no role can read but not write", async () => {
