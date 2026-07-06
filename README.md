@@ -62,3 +62,17 @@ npm --prefix functions run build
 # Deploy everything (requires `firebase login` + a real project)
 firebase deploy
 ```
+
+## Deadline calculator
+
+The deadline math lives in `src/lib/deadline.ts` (`calculateNextDeadline`)
+and `src/lib/recurrence.ts` (`nextPeriod`). Both modules are pure functions
+with no Firebase dependencies — safe to call from the React client or from
+Cloud Functions. A mirrored copy is kept under `functions/src/lib/` because
+the Functions runtime can't import from `src/` directly; keep the two copies
+in sync (see `docs/issues/0007-deadline-calculator.md`). The CURATED list
+of Philippine regular holidays + special non-working days for 2026 and 2027
+lives in `functions/src/birHolidaysData.ts` and is loaded into
+`birHolidays/{year}` (top-level collection, year as document ID) by the
+`seedBirHolidays` callable (admin-only, idempotent via `merge: true`).
+Slice #4 ships this slice; UI consumption comes in later slices.
