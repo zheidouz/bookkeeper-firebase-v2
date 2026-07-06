@@ -3,8 +3,8 @@ import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
 import AppShell from "@/components/AppShell";
 import LoginPage from "@/features/auth/LoginPage";
 import RequireAuth from "@/features/auth/RequireAuth";
-import DashboardPlaceholder from "@/routes/DashboardPlaceholder";
 import NotFound from "@/routes/NotFound";
+import DashboardPage from "@/features/dashboard/DashboardPage";
 import UsersPage from "@/features/users/UsersPage";
 import TaxFormsPage from "@/features/taxForms/TaxFormsPage";
 import ClientsPage from "@/features/clients/ClientsPage";
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
       {
         element: <AppShell />,
         children: [
-          { path: "/", element: <DashboardPlaceholder /> },
+          { path: "/", element: <DashboardPage /> },
           { path: "/clients", element: <ClientsPage /> },
           { path: "/clients/:id", element: <ClientDetailPage /> },
           { path: "/tax-forms", element: <TaxFormsPage /> },
