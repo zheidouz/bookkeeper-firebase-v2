@@ -8,6 +8,16 @@ Firebase-powered web dashboard for a Philippine bookkeeping firm to track client
 - **ADRs:** [`docs/adr/`](docs/adr/) — four locked sticky decisions.
 - **Code:** scaffolded (issue #2). No auth, no data routes yet — those come in slices #3+.
 
+## Attach form to client (slice #8)
+
+From `/clients/:id`, a bookkeeper (or admin) clicks **Attach form** in the
+"Attached forms" card, picks a tax form, and the system creates the first
+`clientFormTasks/{taskId}` document in `pending` status. Per-row **Edit**
+and **Remove** actions are available while the task is still `pending`
+(per PRD story 29) and the actor is the assigned bookkeeper or an admin.
+Firestore rules enforce the same policy server-side. Archived tasks are
+filtered out of this view; slice #15 owns the archive page.
+
 ## Stack (locked)
 
 - Vite + React 18 + TypeScript SPA on Firebase Hosting
