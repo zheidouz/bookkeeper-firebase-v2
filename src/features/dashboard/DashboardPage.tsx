@@ -107,14 +107,23 @@ export default function DashboardPage() {
             Filing health across the firm, live from Firestore.
           </p>
         </div>
-        <span
-          data-testid="dashboard-filtered-count"
-          className="text-xs text-slate-500"
-        >
-          {filteredRows.length} task{filteredRows.length === 1 ? "" : "s"}{" "}
-          match the current filter · {counts.overdue} overdue ·{" "}
-          {counts.dueThisMonth} due this month
-        </span>
+        <div className="flex items-center gap-3">
+          <span
+            data-testid="dashboard-filtered-count"
+            className="text-xs text-slate-500"
+          >
+            {filteredRows.length} task{filteredRows.length === 1 ? "" : "s"}{" "}
+            match the current filter · {counts.overdue} overdue ·{" "}
+            {counts.dueThisMonth} due this month
+          </span>
+          <a
+            href="/tasks"
+            data-testid="dashboard-view-tasks"
+            className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          >
+            View all tasks →
+          </a>
+        </div>
       </header>
 
       <DashboardFilters
