@@ -88,3 +88,16 @@ lives in `src/lib/mergeSeedForms.ts` as a pure function: re-running the
 import never duplicates a row, and user-edited fields on an existing row
 are preserved (the import skips rows where any user-editable field has
 been changed since the original seed).
+
+## Client CRUD
+
+The `/clients` route (slice #7) is the working list of clients.
+Bookkeepers + admins can create, edit, and archive (soft-delete) clients;
+staff see a read-only list. Search filters by business name, owner name,
+or TIN. Client-side pagination at 25 rows per page. The "Show archived"
+toggle controls whether archived rows (grey + italic) appear in the list.
+The detail view at `/clients/:id` shows the full record + Edit button,
+plus a placeholder **Attached forms** section that slice #8 populates.
+Firestore rules (`firestore.rules`) grant read on non-archived clients
+to any signed-in user, list access to anyone signed in, create/update
+to bookkeeper + admin, and hard delete to admin only.

@@ -7,14 +7,19 @@ import DashboardPlaceholder from "@/routes/DashboardPlaceholder";
 import NotFound from "@/routes/NotFound";
 import UsersPage from "@/features/users/UsersPage";
 import TaxFormsPage from "@/features/taxForms/TaxFormsPage";
+import ClientsPage from "@/features/clients/ClientsPage";
+import ClientDetailPage from "@/features/clients/ClientDetailPage";
 
 /**
  * App-wide router.
  *
- *   /login              public           → LoginPage
- *   /                   protected (shell) → DashboardPlaceholder
- *   /clients ...        protected (shell) → NotFound (placeholder)
- *   *                   protected (shell) → NotFound
+ *   /login                          public           → LoginPage
+ *   /                               protected (shell) → DashboardPlaceholder
+ *   /clients                        protected (shell) → ClientsPage
+ *   /clients/:id                    protected (shell) → ClientDetailPage
+ *   /tax-forms                      protected (shell) → TaxFormsPage
+ *   /tasks, /archive, /settings     protected (shell) → NotFound (placeholder)
+ *   *                               protected (shell) → NotFound
  *
  * Note: /login intentionally sits OUTSIDE the RequireAuth + AppShell wrapper
  * so authenticated users who land on it are bounced to "/" by LoginPage's own
@@ -29,7 +34,8 @@ const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           { path: "/", element: <DashboardPlaceholder /> },
-          { path: "/clients", element: <NotFound /> },
+          { path: "/clients", element: <ClientsPage /> },
+          { path: "/clients/:id", element: <ClientDetailPage /> },
           { path: "/tax-forms", element: <TaxFormsPage /> },
           { path: "/tasks", element: <NotFound /> },
           { path: "/archive", element: <NotFound /> },
