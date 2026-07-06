@@ -16,7 +16,7 @@
 // mounted by React Router when /tasks/:id matches).
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   doc,
   serverTimestamp,
@@ -80,6 +80,8 @@ function relativeTime(d: Date, now: Date = new Date()): RelativeTime {
 export default function TaskDetailPage() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const readOnly = searchParams.get("readonly") === "1";
   const { user, role } = useAuth();
   const qc = useQueryClient();
 
@@ -255,8 +257,12 @@ export default function TaskDetailPage() {
               </span>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2" data-testid="task-actions">
-            {canEditPending && (
+          <div
+            className="flex flex-wrap items-center gap-2"
+            data-testid="task-actions"
+            data-readonly={readOnly ? "true" : "false"}
+          >
+            {!readOnly && canEditPending && (
               <Button
                 size="sm"
                 variant="outline"
@@ -268,6 +274,7 @@ export default function TaskDetailPage() {
                 Edit
               </Button>
             )}
+            {!readOnly && (
             <div onClick={(e: React.MouseEvent<HTMLDivElement>) => {
               // Don't let the dropdown toggle open the action menu —
               // we mount <StatusActions> directly below.
@@ -280,7 +287,8 @@ export default function TaskDetailPage() {
                 }}
               />
             </div>
-            {actions.archive && (
+            )}
+            {!readOnly && actions.archive && (
               <Button
                 size="sm"
                 variant="outline"
@@ -292,7 +300,7 @@ export default function TaskDetailPage() {
                 Archive (create next)
               </Button>
             )}
-            {role === "admin" && actions.delete && (
+            {!readOnly && role === "admin" && actions.delete && (
               <Button
                 size="sm"
                 variant="outline"
@@ -392,7 +400,7 @@ export default function TaskDetailPage() {
           </div>
         </Card>
 
-        <Card className="p-4" data-testid="notes-card">
+        <Card className="p-4" data-testid="notes-card" data-readonly={readOnly ? "true" : "false"}>
           <div className="flex items-baseline justify-between">
             <h2 className="text-xs font-medium uppercase tracking-wide text-slate-500">
               Notes
@@ -410,21 +418,29 @@ export default function TaskDetailPage() {
             className="mt-2"
             rows={4}
             data-testid="notes-textarea"
-            disabled={savingNotes}
+            readOnly={readOnly}
+            disabled={savingNotes || readOnly}
           />
-          <div className="mt-2 flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={saveNotes}
-              disabled={savingNotes}
-              data-testid="notes-save"
-            >
-              {savingNotes ? "Saving…" : "Save notes"}
-            </Button>
-            <span className="text-xs text-slate-400">
-              Notes save without a status change.
-            </span>
-          </div>
+          {!readOnly && (
+            <div className="mt-2 flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={saveNotes}
+                disabled={savingNotes}
+                data-testid="notes-save"
+              >
+                {savingNotes ? "Saving…" : "Save notes"}
+              </Button>
+              <span className="text-xs text-slate-400">
+                Notes save without a status change.
+              </span>
+            </div>
+          )}
+          {readOnly && (
+            <p className="mt-2 text-xs italic text-slate-400">
+              Read-only view (this task is archived).
+            </p>
+          )}
         </Card>
       </div>
 
