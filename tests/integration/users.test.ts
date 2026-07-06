@@ -35,6 +35,7 @@ setLogLevel("error");
 
 import { auth, db, functions } from "@/lib/firebaseConfig";
 
+const uniqueSuffix = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
 const RUN_INTEGRATION = process.env.VITE_USE_EMULATOR === "true";
 
 const PROJECT_ID = "demo-bookkeeper";
@@ -79,8 +80,8 @@ let adminApp: AdminApp;
     });
 
     it("adminCreateUser creates an Auth account, sets the claim, and writes users/{uid}", async () => {
-      const adminEmail = `admin-${Date.now()}@example.com`;
-      const targetEmail = `newbie-${Date.now()}@example.com`;
+      const adminEmail = `admin-${uniqueSuffix()}@example.com`;
+      const targetEmail = `newbie-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
       const adminDb = getAdminFirestore(adminApp);
 
@@ -131,8 +132,8 @@ let adminApp: AdminApp;
     }, 60_000);
 
     it("assignRole updates the custom claim and the users/{uid}.role", async () => {
-      const adminEmail = `admin-${Date.now()}@example.com`;
-      const targetEmail = `target-${Date.now()}@example.com`;
+      const adminEmail = `admin-${uniqueSuffix()}@example.com`;
+      const targetEmail = `target-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
       const adminDb = getAdminFirestore(adminApp);
 
@@ -181,8 +182,8 @@ let adminApp: AdminApp;
     }, 60_000);
 
     it("non-admin calling adminCreateUser is denied with permission-denied", async () => {
-      const adminEmail = `admin-${Date.now()}@example.com`;
-      const bkEmail = `bk-${Date.now()}@example.com`;
+      const adminEmail = `admin-${uniqueSuffix()}@example.com`;
+      const bkEmail = `bk-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
       const adminDb = getAdminFirestore(adminApp);
 
@@ -210,7 +211,7 @@ let adminApp: AdminApp;
         const fn = httpsCallable(functions, "adminCreateUser");
         await expect(
           fn({
-            email: `victim-${Date.now()}@example.com`,
+            email: `victim-${uniqueSuffix()}@example.com`,
             displayName: "Victim",
             role: "staff",
           }),
@@ -223,8 +224,8 @@ let adminApp: AdminApp;
     }, 60_000);
 
     it("rules: non-admin cannot read another user's users/{uid} doc", async () => {
-      const aEmail = `a-${Date.now()}@example.com`;
-      const bEmail = `b-${Date.now()}@example.com`;
+      const aEmail = `a-${uniqueSuffix()}@example.com`;
+      const bEmail = `b-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
       const adminDb = getAdminFirestore(adminApp);
 

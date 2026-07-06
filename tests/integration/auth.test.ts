@@ -30,6 +30,7 @@ import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
 
 import { auth, db } from "@/lib/firebaseConfig";
 
+const uniqueSuffix = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
 const RUN_INTEGRATION = process.env.VITE_USE_EMULATOR === "true";
 
 const EMULATOR_AUTH_URL = "http://127.0.0.1:9099";
@@ -75,7 +76,7 @@ let adminApp: AdminApp;
     });
 
     it("resolves role=admin from users/{uid}.role in Firestore", async () => {
-      const email = `admin-${Date.now()}@example.com`;
+      const email = `admin-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
       const adminDb = getAdminFirestore(adminApp);
 
@@ -101,7 +102,7 @@ let adminApp: AdminApp;
     }, 30_000);
 
     it("falls back to custom claim role=bookkeeper when Firestore doc is absent", async () => {
-      const email = `bk-${Date.now()}@example.com`;
+      const email = `bk-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
 
       const userRecord = await adminAuth.createUser({ email, password: TEST_PASSWORD });
@@ -121,7 +122,7 @@ let adminApp: AdminApp;
     }, 30_000);
 
     it("defaults to 'staff' when neither Firestore doc nor claim is set", async () => {
-      const email = `staff-${Date.now()}@example.com`;
+      const email = `staff-${uniqueSuffix()}@example.com`;
       const adminAuth = getAdminAuth(adminApp);
 
       const userRecord = await adminAuth.createUser({ email, password: TEST_PASSWORD });
