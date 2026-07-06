@@ -6,6 +6,7 @@ import RequireAuth from "@/features/auth/RequireAuth";
 import DashboardPlaceholder from "@/routes/DashboardPlaceholder";
 import NotFound from "@/routes/NotFound";
 import UsersPage from "@/features/users/UsersPage";
+import TaxFormsPage from "@/features/taxForms/TaxFormsPage";
 
 /**
  * App-wide router.
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
         children: [
           { path: "/", element: <DashboardPlaceholder /> },
           { path: "/clients", element: <NotFound /> },
-          { path: "/tax-forms", element: <NotFound /> },
+          { path: "/tax-forms", element: <TaxFormsPage /> },
           { path: "/tasks", element: <NotFound /> },
           { path: "/archive", element: <NotFound /> },
           { path: "/users", element: <UsersPage /> },
