@@ -27,5 +27,17 @@ export const userRoleSchema = z.object({
   }),
 });
 
+// archiveTask callable payload (slice #10). `notes` is an optional
+// free-text note stored on the archive → next-period taskStatusHistory
+// row (never on the successor task itself).
+export const archiveTaskSchema = z.object({
+  taskId: z.string().min(1, "Task id is required."),
+  notes: z
+    .string()
+    .max(2000, "Notes must be 2000 characters or fewer.")
+    .optional(),
+});
+
 export type UserCreateInput = z.infer<typeof userCreateSchema>;
 export type UserRoleInput = z.infer<typeof userRoleSchema>;
+export type ArchiveTaskInput = z.infer<typeof archiveTaskSchema>;

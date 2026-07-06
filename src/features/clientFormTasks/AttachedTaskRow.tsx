@@ -24,6 +24,7 @@ import { useAuth } from "@/features/auth/useAuth";
 import StatusBadge from "@/features/clientFormTasks/StatusBadge";
 import StatusActions from "@/features/clientFormTasks/StatusActions";
 import EditTaskDialog from "@/features/clientFormTasks/EditTaskDialog";
+import ArchiveTaskDialog from "@/features/clientFormTasks/ArchiveTaskDialog";
 import { useTaskStatusHistory } from "@/features/clientFormTasks/useTaskStatusHistory";
 import {
   STATUS_LABELS_LONG,
@@ -54,6 +55,7 @@ export default function AttachedTaskRow({
 }: AttachedTaskRowProps) {
   const { user, role } = useAuth();
   const [editOpen, setEditOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -62,6 +64,11 @@ export default function AttachedTaskRow({
   const isAssigned = user?.uid === task.assignedBookkeeperId;
   const canModify = task.status === "pending" && (isAdmin || isAssigned);
   const canChangeStatus = isAdmin || isAssigned;
+  // Slice #10: the Archive action appears only on a `done` task, and
+  // only for the assigned bookkeeper or an admin (PRD story 34). The
+  // callable re-checks this authorization server-side.
+  const canArchive =
+    task.status === "done" && (isAdmin || isAssigned);
   const legalNext = getLegalNextStatuses(task.status);
 
   const { data: history } = useTaskStatusHistory(
@@ -150,6 +157,17 @@ export default function AttachedTaskRow({
                   Remove
                 </Button>
               </>
+            ) : canArchive ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setArchiveOpen(true)}
+                data-testid={`attached-task-archive-${task.id}`}
+                disabled={busy}
+              >
+                Archive
+              </Button>
             ) : (
               <span className="text-xs text-slate-400">—</span>
             )}
@@ -227,6 +245,14 @@ export default function AttachedTaskRow({
         open={editOpen}
         onOpenChange={setEditOpen}
       />
+      {canArchive && (
+        <ArchiveTaskDialog
+          task={task}
+          taxForm={taxForm}
+          open={archiveOpen}
+          onOpenChange={setArchiveOpen}
+        />
+      )}
     </tr>
   );
 }
