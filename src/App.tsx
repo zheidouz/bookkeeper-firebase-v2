@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
 import AppShell from "@/components/AppShell";
 import LoginPage from "@/features/auth/LoginPage";
@@ -9,6 +10,20 @@ import UsersPage from "@/features/users/UsersPage";
 import TaxFormsPage from "@/features/taxForms/TaxFormsPage";
 import ClientsPage from "@/features/clients/ClientsPage";
 import ClientDetailPage from "@/features/clients/ClientDetailPage";
+
+// Slice #13 lazy-loads the task table so the main bundle stays
+// light (the table brings in DashboardFilters, shadcn Table +
+// DropdownMenu, and StatusBadge). A Suspense wrapper around the
+// element shows a skeleton while the chunk fetches.
+const TasksPage = lazy(() => import("@/features/tasks/TasksPage"));
+
+function TasksPageWithSuspense() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-slate-500">Loading tasks…</div>}>
+      <TasksPage />
+    </Suspense>
+  );
+}
 
 /**
  * App-wide router.
@@ -37,7 +52,7 @@ const router = createBrowserRouter([
           { path: "/clients", element: <ClientsPage /> },
           { path: "/clients/:id", element: <ClientDetailPage /> },
           { path: "/tax-forms", element: <TaxFormsPage /> },
-          { path: "/tasks", element: <NotFound /> },
+          { path: "/tasks", element: <TasksPageWithSuspense /> },
           { path: "/archive", element: <NotFound /> },
           { path: "/users", element: <UsersPage /> },
           { path: "/settings", element: <NotFound /> },
