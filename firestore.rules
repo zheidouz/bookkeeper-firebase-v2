@@ -1,7 +1,9 @@
 rules_version = '2';
 
-// Slices #5 + #6 + #7 + #8 + #9 — users, tax form library, client
-// CRUD, attach-form-to-client, status workflow + audit history.
+// Slices #5 + #6 + #7 + #8 + #9 + #10 — users, tax form library, client
+// CRUD, attach-form-to-client, status workflow + audit history, and the
+// archive → atomic create-next callable (which owns the archived-state
+// transition; the client SDK is blocked from setting it directly).
 //
 // Admin (custom-claim role=admin) can read/write all users/{uid} documents.
 // Authenticated bookkeeper + admin can also LIST users, so client
@@ -43,6 +45,18 @@ service cloud.firestore {
       return (from == "pending" && to == "ready_to_file")
           || (from == "ready_to_file" && to == "submitted")
           || (from == "submitted" && to == "done");
+    }
+
+    // Slice #10: entering the archived state (status == "archived" or
+    // archived == true) is OFF-LIMITS to the client SDK. The archive
+    // action goes through the `archiveTask` callable, which writes with
+    // the Admin SDK and bypasses these rules. This predicate detects a
+    // client-direct attempt to flip a task INTO the archived state.
+    function entersArchivedState() {
+      return (request.resource.data.status == "archived"
+              && resource.data.status != "archived")
+          || (request.resource.data.archived == true
+              && resource.data.archived != true);
     }
 
     match /users/{userId} {
@@ -108,6 +122,9 @@ service cloud.firestore {
       allow update: if request.auth != null
         && (request.auth.token.role == "admin"
             || request.auth.uid == resource.data.assignedBookkeeperId)
+        // Slice #10: no client-direct path into the archived state.
+        // The archiveTask callable (Admin SDK) owns that transition.
+        && !entersArchivedState()
         && (
           // Admin: no shape constraint.
           request.auth.token.role == "admin"
