@@ -1,9 +1,12 @@
 rules_version = '2';
 
-// Slice #5 — user management.
+// Slices #5 + #6 — user management + tax form library.
 // Admin (custom-claim role=admin) can read/write all users/{uid} documents.
 // Authenticated non-admin can read their own profile doc only.
 // Self-update is permitted so a future own-profile editor stays in rules.
+//
+// For taxForms/{formId}: any authenticated user can read. Create + update
+// permitted for admin + bookkeeper. Delete is admin-only.
 //
 // All other collections / writes remain deny-all until later slices.
 service cloud.firestore {
@@ -17,6 +20,18 @@ service cloud.firestore {
       allow update: if request.auth != null
         && (request.auth.uid == userId
             || request.auth.token.role == "admin");
+      allow delete: if request.auth != null
+        && request.auth.token.role == "admin";
+    }
+
+    match /taxForms/{formId} {
+      // Listing is required by the TaxFormsPage onSnapshot listener, so
+      // grant list to any signed-in user. get is also implicitly covered
+      // by the read rule below.
+      allow list: if request.auth != null;
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.token.role in ["admin", "bookkeeper"];
       allow delete: if request.auth != null
         && request.auth.token.role == "admin";
     }

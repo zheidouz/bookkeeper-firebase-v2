@@ -1,0 +1,200 @@
+[
+  {
+    "formCode": "0619E",
+    "formName": "Withholding Tax Return — Expanded",
+    "description": "Monthly remittance of withholding tax on certain income payments to individuals (expanded withholding tax).",
+    "category": "Withholding",
+    "defaultFrequency": "monthly",
+    "defaultDeadlineRule": "fixedDayOfMonthAfterPeriod",
+    "deadlineShift": 10,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "0619F",
+    "formName": "Withholding Tax Return — Compensation",
+    "description": "Monthly remittance of withholding tax on compensation (alternative to BIR Form 2316 summary).",
+    "category": "Withholding",
+    "defaultFrequency": "monthly",
+    "defaultDeadlineRule": "fixedDayOfMonthAfterPeriod",
+    "deadlineShift": 10,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "0605",
+    "formName": "Annual Information Return of Income Tax Withheld on Compensation and Final Withholding Taxes",
+    "description": "Annual summary of all withholding taxes remitted during the calendar year.",
+    "category": "Withholding",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": 1,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1601C",
+    "formName": "Withholding Tax Return — Compensation",
+    "description": "Monthly remittance of tax withheld on compensation paid to employees.",
+    "category": "Withholding",
+    "defaultFrequency": "monthly",
+    "defaultDeadlineRule": "fixedDayOfMonthAfterPeriod",
+    "deadlineShift": 10,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1601EQ",
+    "formName": "Quarterly Remittance Return of Creditable Income Taxes Withheld (Expanded)",
+    "description": "Quarterly return summarizing expanded withholding taxes remitted, used to support income tax filings.",
+    "category": "Withholding",
+    "defaultFrequency": "quarterly",
+    "defaultDeadlineRule": "fixedDayOfMonthAfterPeriod",
+    "deadlineShift": 15,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1601FQ",
+    "formName": "Quarterly Remittance Return of Final Taxes Withheld",
+    "description": "Quarterly return summarizing final withholding taxes remitted.",
+    "category": "Withholding",
+    "defaultFrequency": "quarterly",
+    "defaultDeadlineRule": "fixedDayOfMonthAfterPeriod",
+    "deadlineShift": 15,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1701Q",
+    "formName": "Quarterly Income Tax Return — Self-Employed / Mixed Income Earners",
+    "description": "Quarterly income tax return for self-employed professionals and mixed-income individuals.",
+    "category": "Income Tax",
+    "defaultFrequency": "quarterly",
+    "defaultDeadlineRule": "lastWorkingDayOfMonthAfterPeriod+1",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1701A",
+    "formName": "Annual Income Tax Return — Self-Employed / Mixed Income Earners (and Estates/Trusts)",
+    "description": "Annual income tax return for self-employed, mixed-income earners, estates, and trusts.",
+    "category": "Income Tax",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": 4,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1702Q",
+    "formName": "Quarterly Income Tax Return — Corporations and Partnerships",
+    "description": "Quarterly corporate income tax return (CWT creditable against annual tax due).",
+    "category": "Income Tax",
+    "defaultFrequency": "quarterly",
+    "defaultDeadlineRule": "lastWorkingDayOfMonthAfterPeriod+1",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1702RT",
+    "formName": "Annual Income Tax Return — With Quarterly CWT Payments",
+    "description": "Annual corporate return covering regular income tax — required when filing via regular rate, not under CREATE incentives.",
+    "category": "Income Tax",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": 4,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1702EX",
+    "formName": "Annual Income Tax Return — Exempt (Non-Taxable, Purely Non-Prop, etc.)",
+    "description": "Annual corporate return for entities exempt from income tax or those whose gross income is purely passive and non-taxable.",
+    "category": "Income Tax",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": 4,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "1702MX",
+    "formName": "Annual Income Tax Return — Mixed Income Earners / Special Corporations",
+    "description": "Annual corporate return for mixed-income earners and other special categories.",
+    "category": "Income Tax",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": 4,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "2000",
+    "formName": "Annual Declaration of Gross Receipts/Taxable Transactions (Non-VAT)",
+    "description": "Annual information return for non-VAT registered taxpayers declaring gross receipts and taxable transactions.",
+    "category": "Registration",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": 1,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "2000-OT",
+    "formName": "Annual Information Return for One-Time Tax Transactions",
+    "description": "Annual return for one-time transactions (sale of real property, sale of shares not traded, etc.).",
+    "category": "Registration",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "2307",
+    "formName": "Certificate of Creditable Tax Withheld at Source",
+    "description": "Source-document certificate issued by withholding agents to payees for creditable taxes withheld during the year.",
+    "category": "Withholding",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "2316",
+    "formName": "BIR Certificate of Compensation Payment/Tax Withheld",
+    "description": "Per-employee annual certificate of compensation payments and tax withheld, issued to employees for ITR purposes.",
+    "category": "Withholding",
+    "defaultFrequency": "annual",
+    "defaultDeadlineRule": "lastDayOfMonthAfterPeriod",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "2550M",
+    "formName": "Monthly Value-Added Tax Declaration",
+    "description": "Monthly VAT return — output tax, input tax, and net VAT computation for the period.",
+    "category": "VAT",
+    "defaultFrequency": "monthly",
+    "defaultDeadlineRule": "lastWorkingDayOfMonthAfterPeriod+1",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  },
+  {
+    "formCode": "2550Q",
+    "formName": "Quarterly Value-Added Tax Return",
+    "description": "Quarterly VAT return — percentage tax + output/input tax computation (alternative to monthly 2550M for VAT-registered persons).",
+    "category": "VAT",
+    "defaultFrequency": "quarterly",
+    "defaultDeadlineRule": "lastWorkingDayOfMonthAfterPeriod+1",
+    "deadlineShift": null,
+    "isActive": true,
+    "seedSource": true
+  }
+]

@@ -76,3 +76,15 @@ lives in `functions/src/birHolidaysData.ts` and is loaded into
 `birHolidays/{year}` (top-level collection, year as document ID) by the
 `seedBirHolidays` callable (admin-only, idempotent via `merge: true`).
 Slice #4 ships this slice; UI consumption comes in later slices.
+
+## Tax form library
+
+The `/tax-forms` route (slice #6) is the master library of BIR tax forms.
+Any signed-in user can read; bookkeepers + admins can create and edit
+custom forms; only admins can delete. The page is populated by clicking
+**Import/refresh seed** (admin-only), which imports the hardcoded seed at
+`src/seed/birForms.json` (the 18 PRD-named BIR forms). The merge logic
+lives in `src/lib/mergeSeedForms.ts` as a pure function: re-running the
+import never duplicates a row, and user-edited fields on an existing row
+are preserved (the import skips rows where any user-editable field has
+been changed since the original seed).
