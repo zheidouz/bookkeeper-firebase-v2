@@ -6,7 +6,7 @@ Firebase-powered web dashboard for a Philippine bookkeeping firm to track client
 
 - **PRD:** [`docs/prd/bookkeeper-dashboard-v1.md`](docs/prd/bookkeeper-dashboard-v1.md) — v1, ready for `/to-issues`.
 - **ADRs:** [`docs/adr/`](docs/adr/) — four locked sticky decisions.
-- **Code:** slices #2 + #3 + #4 + #5 + #6 + #7 + #8 + #9 shipped on `feat/issue-chain`. Status workflow + audit history lands with this slice.
+- **Code:** slices #2 + #3 + #4 + #5 + #6 + #7 + #8 + #9 + #10 + #11 shipped on `feat/issue-chain`. Status workflow + audit history + archive callable + nightly reconciliation land with this slice.
 
 ## Attach form to client (slice #8)
 
@@ -47,6 +47,22 @@ append-only for everyone (no update / delete).
 - Cloud Storage (file attachments on tasks)
 - shadcn/ui + Tailwind, TanStack Query, React Router v6 (data routers), React Hook Form + Zod
 - Vitest + Firebase Emulator Suite + Playwright (critical e2e only)
+
+## Nightly reconciliation (slice #11)
+
+`reconcileOverdueArchives` is a Cloud Function v2 `onSchedule` that
+runs every day at 02:00 (Asia/Manila) and finds `done` tasks whose
+`deadlineDate + 7 days` has passed with no successor (`nextTaskId == null`).
+For each, it runs the same `buildNextTask` + transaction that
+`archiveTask` uses, marking the current task `archived` and creating
+the next-period task with `status: 'pending'`. The audit row goes
+into `taskStatusHistory` with `changedBy: "system:reconcile"` so
+dashboards can distinguish cron-driven vs user-driven archives.
+
+The schedule is configurable via env: `RECONCILE_CRON` (default
+`"0 2 * * *"`), `RECONCILE_TIMEZONE` (default `"Asia/Manila"`).
+Region comes from the global `setGlobalOptions({ region: "asia-southeast1" })`
+in `functions/src/index.ts`.
 
 ## Documentation
 
