@@ -1,6 +1,8 @@
 rules_version = '2';
 
-// Slices #5 + #6 + #7 — users + tax form library + client CRUD.
+// Slices #5 + #6 + #7 + #8 + #9 — users, tax form library, client
+// CRUD, attach-form-to-client, status workflow + audit history.
+//
 // Admin (custom-claim role=admin) can read/write all users/{uid} documents.
 // Authenticated bookkeeper + admin can also LIST users, so client
 // management pages can populate the bookkeeper Select.
@@ -16,9 +18,33 @@ rules_version = '2';
 // (including archive/restore status changes) is permitted for
 // admin + bookkeeper. Hard delete is admin-only.
 //
-// All other collections / writes remain deny-all until later slices.
+// For clientFormTasks/{taskId} (slice #8 + #9): authorised actors
+// (admin OR the assigned bookkeeper) can update. The shape of the
+// update must be one of:
+//   * legal forward status transition (status updates only — slices
+//     #9 enforces pending→ready→submitted→done; archive is the
+//     next-step handled by slice #10)
+//   * notes-only or updatedAt-only bumps (no status change) from
+//     any status
+//   * free editing while the task is still 'pending' (slice #8
+//     contract — EditTaskDialog rewrites taxFormId / frequency /
+//     period / deadline etc. while status remains 'pending')
+//
+// taskStatusHistory/{historyId} (slice #9) is append-only: anyone
+// with admin or bookkeeper role can create; reads are limited to the
+// assigned bookkeeper of the related task (and admins / bookkeepers);
+// update + delete are denied for everyone (audit log invariant).
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helpers — local to this rules file. The `let` expressions
+    // make the conditional below readable.
+    function isLegalForwardStatusTransition(from, to) {
+      return (from == "pending" && to == "ready_to_file")
+          || (from == "ready_to_file" && to == "submitted")
+          || (from == "submitted" && to == "done");
+    }
+
     match /users/{userId} {
       allow read: if request.auth != null
         && (request.auth.uid == userId
@@ -59,12 +85,19 @@ service cloud.firestore {
         && request.auth.token.role == "admin";
     }
 
-    // clientFormTasks/{taskId} — slice #8 (attach form to client).
+    // clientFormTasks/{taskId} — slice #8 + #9.
     // Any signed-in user can read non-archived tasks; admins can read
     // archived tasks too (slice #15 owns the archive page).
-    // Create is admin+bookkeeper. Update + delete require the task to
+    // Create is admin+bookkeeper. Delete requires the task to
     // be pending AND the actor to be the assigned bookkeeper, OR admin.
     // (PRD story 29: edit/remove only while pending.)
+    // Update (slice #9) authorises admins fully, and the assigned
+    // bookkeeper under three shapes (see header comment):
+    //   * free editing of a task that BOTH stays in 'pending' AND
+    //     touches any field other than status (status must stay
+    //     'pending' — the workflow owns status movement)
+    //   * legal forward status transition
+    //   * notes-only / updatedAt-only bumps from any status
     match /clientFormTasks/{taskId} {
       allow read: if request.auth != null
         && (resource == null
@@ -74,12 +107,41 @@ service cloud.firestore {
         && request.auth.token.role in ["admin", "bookkeeper"];
       allow update: if request.auth != null
         && (request.auth.token.role == "admin"
-            || (request.auth.uid == resource.data.assignedBookkeeperId
-                && resource.data.status == "pending"));
+            || request.auth.uid == resource.data.assignedBookkeeperId)
+        && (
+          // Admin: no shape constraint.
+          request.auth.token.role == "admin"
+          // Bookkeeper, pending task whose status stays pending:
+          // free editing (slice #8 EditTaskDialog rewrites
+          // taxFormId / frequency / period / deadline while keeping
+          // status = 'pending').
+          || (request.auth.uid == resource.data.assignedBookkeeperId
+              && resource.data.status == "pending"
+              && request.resource.data.status == "pending")
+          // Legal forward status transition (slice #9).
+          || isLegalForwardStatusTransition(resource.data.status, request.resource.data.status)
+          // Notes-only / updatedAt-only bumps (slice #9).
+          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(["notes", "updatedAt"])
+        );
       allow delete: if request.auth != null
         && (request.auth.token.role == "admin"
             || (request.auth.uid == resource.data.assignedBookkeeperId
                 && resource.data.status == "pending"));
+    }
+
+    // taskStatusHistory/{historyId} — slice #9 audit log. Append-only.
+    // Reads are gated on the related clientFormTask being assigned to
+    // the requesting user, OR the requester being admin/bookkeeper
+    // (so admin screens can show the log). Create is admin+bookkeeper;
+    // update + delete are denied (tamper-evidence requirement).
+    match /taskStatusHistory/{historyId} {
+      allow read: if request.auth != null
+        && (resource == null
+            || get(/databases/$(database)/documents/clientFormTasks/$(resource.data.taskId)).data.assignedBookkeeperId == request.auth.uid
+            || request.auth.token.role == "admin");
+      allow create: if request.auth != null
+        && request.auth.token.role in ["admin", "bookkeeper"];
+      allow update, delete: if false;
     }
 
     match /{document=**} {

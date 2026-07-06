@@ -6,7 +6,7 @@ Firebase-powered web dashboard for a Philippine bookkeeping firm to track client
 
 - **PRD:** [`docs/prd/bookkeeper-dashboard-v1.md`](docs/prd/bookkeeper-dashboard-v1.md) — v1, ready for `/to-issues`.
 - **ADRs:** [`docs/adr/`](docs/adr/) — four locked sticky decisions.
-- **Code:** scaffolded (issue #2). No auth, no data routes yet — those come in slices #3+.
+- **Code:** slices #2 + #3 + #4 + #5 + #6 + #7 + #8 + #9 shipped on `feat/issue-chain`. Status workflow + audit history lands with this slice.
 
 ## Attach form to client (slice #8)
 
@@ -17,6 +17,26 @@ and **Remove** actions are available while the task is still `pending`
 (per PRD story 29) and the actor is the assigned bookkeeper or an admin.
 Firestore rules enforce the same policy server-side. Archived tasks are
 filtered out of this view; slice #15 owns the archive page.
+
+## Status workflow + audit history
+
+From `/clients/:id`, a bookkeeper (or admin) advances a task through
+its workflow (`pending → ready_to_file → submitted → done`) via
+inline buttons in the **Attached forms** card. The "Change with note…"
+button opens a dialog that lets the actor attach an optional free-text
+note to the transition. Every state change appends a row to the
+append-only `taskStatusHistory/{historyId}` collection; the row's
+`oldStatus` / `newStatus` / `changedBy` / `changedAt` / `notes` are
+frozen at write time. The history disclosure (toggle per row) renders
+the recent rows newest-first.
+
+The reducer (`src/features/clientFormTasks/statusReducer.ts`) is the
+single source of truth for legal next-statuses and is enforced a
+second time by Firestore rules — an illegal jump (e.g.
+`pending → done` directly) is rejected both by the client SDK and by
+the rules. Bookkeepers can change status only on tasks where they are
+the assigned bookkeeper; admins can change any. History rows are
+append-only for everyone (no update / delete).
 
 ## Stack (locked)
 

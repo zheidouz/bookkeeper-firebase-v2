@@ -8,6 +8,12 @@ import type { TaskStatus } from "@/features/clientFormTasks/clientFormTaskSchema
 interface StatusBadgeProps {
   status: TaskStatus;
   className?: string;
+  /**
+   * `compact` renders a small dot-style pill instead of the labelled
+   * pill. Used inline in the AttachedTaskRow history list where the
+   * label is redundant with the arrow on the same row.
+   */
+  compact?: boolean;
 }
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
@@ -26,7 +32,24 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
   archived: "Archived",
 };
 
-export default function StatusBadge({ status, className }: StatusBadgeProps) {
+export default function StatusBadge({
+  status,
+  className,
+  compact,
+}: StatusBadgeProps) {
+  if (compact) {
+    return (
+      <span
+        data-testid={`status-badge-compact-${status}`}
+        title={STATUS_LABELS[status]}
+        className={
+          "inline-block h-2 w-2 rounded-full " +
+          STATUS_STYLES[status].split(" ")[0] +
+          (className ? ` ${className}` : "")
+        }
+      />
+    );
+  }
   return (
     <span
       data-testid={`status-badge-${status}`}
