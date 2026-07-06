@@ -56,3 +56,13 @@ test-results/
 
 # Vitest
 vitest-report/
+
+# Vite PWA (scaffold leaves room for it; later slices may add)
+dev-dist/
+
+# PWA / Workbox artifacts
+workbox-*.js
+workbox-*.js.map
+
+# TypeScript build cache (tsc -b incremental mode)
+*.tsbuildinfo
