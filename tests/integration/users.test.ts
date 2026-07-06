@@ -253,8 +253,12 @@ let adminApp: AdminApp;
 
       try {
         await signInWithEmailAndPassword(auth, aEmail, TEST_PASSWORD);
-        // a (bookkeeper) tries to read b's doc — should be denied.
-        await expect(getDoc(doc(db, "users", bRec.uid))).rejects.toThrow();
+        // Slice #7 relaxed users/{userId} read rules so bookkeepers can
+        // list other bookkeepers for the client CRUD Select. So a
+        // bookkeeper CAN read another user's doc (including a staff
+        // doc) — only the admin + the user themselves still apply.
+        const cross = await getDoc(doc(db, "users", bRec.uid));
+        expect(cross.exists()).toBe(true);
         // a can read their own doc.
         const own = await getDoc(doc(db, "users", aRec.uid));
         expect(own.exists()).toBe(true);
