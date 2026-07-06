@@ -5,6 +5,7 @@ import LoginPage from "@/features/auth/LoginPage";
 import RequireAuth from "@/features/auth/RequireAuth";
 import DashboardPlaceholder from "@/routes/DashboardPlaceholder";
 import NotFound from "@/routes/NotFound";
+import UsersPage from "@/features/users/UsersPage";
 
 /**
  * App-wide router.
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
           { path: "/tax-forms", element: <NotFound /> },
           { path: "/tasks", element: <NotFound /> },
           { path: "/archive", element: <NotFound /> },
-          { path: "/users", element: <NotFound /> },
+          { path: "/users", element: <UsersPage /> },
           { path: "/settings", element: <NotFound /> },
           { path: "*", element: <NotFound /> },
         ],

@@ -2,6 +2,7 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator, type Firestore } from "firebase/firestore";
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from "firebase/storage";
+import { getFunctions, connectFunctionsEmulator, type Functions } from "firebase/functions";
 
 /**
  * Firebase web SDK initialization.
@@ -40,6 +41,7 @@ const app: FirebaseApp = getApps().length ? getApps()[0] : initializeApp(firebas
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 export const storage: FirebaseStorage = getStorage(app);
+export const functions: Functions = getFunctions(app, "asia-southeast1");
 
 if (useEmulator && typeof window !== "undefined") {
   // Idempotent — connectXEmulator throws if called twice on the same instance.
@@ -55,6 +57,11 @@ if (useEmulator && typeof window !== "undefined") {
   }
   try {
     connectStorageEmulator(storage, "127.0.0.1", 9199);
+  } catch {
+    /* already connected */
+  }
+  try {
+    connectFunctionsEmulator(functions, "127.0.0.1", 5001);
   } catch {
     /* already connected */
   }

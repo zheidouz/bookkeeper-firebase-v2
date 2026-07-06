@@ -1,15 +1,24 @@
 rules_version = '2';
 
-// Auth shell (#3) — authenticated users can read their own profile doc.
-// All other collections / writes remain deny-all. Slice #5 (adminCreateUser)
-// and later slices relax writes for the appropriate collections.
+// Slice #5 — user management.
+// Admin (custom-claim role=admin) can read/write all users/{uid} documents.
+// Authenticated non-admin can read their own profile doc only.
+// Self-update is permitted so a future own-profile editor stays in rules.
 //
-// Custom-claim admin overrides for `users/*` lands in slice #17.
+// All other collections / writes remain deny-all until later slices.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if false;
+      allow read: if request.auth != null
+        && (request.auth.uid == userId
+            || request.auth.token.role == "admin");
+      allow create: if request.auth != null
+        && request.auth.token.role == "admin";
+      allow update: if request.auth != null
+        && (request.auth.uid == userId
+            || request.auth.token.role == "admin");
+      allow delete: if request.auth != null
+        && request.auth.token.role == "admin";
     }
 
     match /{document=**} {
