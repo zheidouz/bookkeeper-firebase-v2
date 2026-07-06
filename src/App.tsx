@@ -17,6 +17,7 @@ import ClientDetailPage from "@/features/clients/ClientDetailPage";
 // element shows a skeleton while the chunk fetches.
 const TasksPage = lazy(() => import("@/features/tasks/TasksPage"));
 const TaskDetailPage = lazy(() => import("@/features/tasks/TaskDetailPage"));
+const ArchivePage = lazy(() => import("@/features/archive/ArchivePage"));
 
 function TasksPageWithSuspense() {
   return (
@@ -30,6 +31,14 @@ function TaskDetailPageWithSuspense() {
   return (
     <Suspense fallback={<div className="p-6 text-sm text-slate-500">Loading task…</div>}>
       <TaskDetailPage />
+    </Suspense>
+  );
+}
+
+function ArchivePageWithSuspense() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-slate-500">Loading archive…</div>}>
+      <ArchivePage />
     </Suspense>
   );
 }
@@ -63,7 +72,7 @@ const router = createBrowserRouter([
           { path: "/tax-forms", element: <TaxFormsPage /> },
           { path: "/tasks", element: <TasksPageWithSuspense /> },
           { path: "/tasks/:taskId", element: <TaskDetailPageWithSuspense /> },
-          { path: "/archive", element: <NotFound /> },
+          { path: "/archive", element: <ArchivePageWithSuspense /> },
           { path: "/users", element: <UsersPage /> },
           { path: "/settings", element: <NotFound /> },
           { path: "*", element: <NotFound /> },
