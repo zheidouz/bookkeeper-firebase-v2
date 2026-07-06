@@ -6,7 +6,7 @@ Firebase-powered web dashboard for a Philippine bookkeeping firm to track client
 
 - **PRD:** [`docs/prd/bookkeeper-dashboard-v1.md`](docs/prd/bookkeeper-dashboard-v1.md) — v1, ready for `/to-issues`.
 - **ADRs:** [`docs/adr/`](docs/adr/) — four locked sticky decisions.
-- **Code:** slices #2 + #3 + #4 + #5 + #6 + #7 + #8 + #9 + #10 + #11 shipped on `feat/issue-chain`. Status workflow + audit history + archive callable + nightly reconciliation land with this slice.
+- **Code:** slices #2 + #3 + #4 + #5 + #6 + #7 + #8 + #9 + #10 + #11 + #12 shipped on `feat/issue-chain`. Status workflow + audit history + archive callable + nightly reconciliation + dashboard overview land with this slice.
 
 ## Attach form to client (slice #8)
 
@@ -58,6 +58,25 @@ For each, it runs the same `buildNextTask` + transaction that
 the next-period task with `status: 'pending'`. The audit row goes
 into `taskStatusHistory` with `changedBy: "system:reconcile"` so
 dashboards can distinguish cron-driven vs user-driven archives.
+
+## Dashboard overview (slice #12)
+
+`/` is the firm's filing-health overview: eight summary cards
+(Pending / Ready to file / Submitted / Done / Overdue / Due this
+month / Due this quarter / Archived), a filter strip (client / form
+type / status / overdue-only live; the rest marked "coming soon"),
+and a **My tasks vs All-firm tasks** scope toggle. Bookkeepers
+default to **Mine**; admins default to **All-firm**. The cards
+update live via a single `onSnapshot` on `clientFormTasks` — when
+another user changes a task's status, the relevant card re-renders
+within the same second. The aggregator and urgency helper live in
+`src/features/dashboard/dashboardCounts.ts` (pure, no React, no
+Firestore) and are unit-tested in `tests/unit/useDashboardCounts.test.ts`
+and `tests/unit/dashboard-badges.test.ts`. The live-update path is
+covered end-to-end against the emulator in
+`tests/integration/dashboard.test.tsx`. Slice #13 will mount the
+filter-aware task table below the filter strip; that area is a
+placeholder for now.
 
 The schedule is configurable via env: `RECONCILE_CRON` (default
 `"0 2 * * *"`), `RECONCILE_TIMEZONE` (default `"Asia/Manila"`).

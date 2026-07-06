@@ -97,16 +97,41 @@ function asDate(value: unknown): Date {
   return new Date(0);
 }
 
-export function useClientFormTasks(clientId: string | undefined) {
+export interface UseClientFormTasksOptions {
+  /**
+   * Scope filter — slice #12 dashboard support. Default is "all"
+   * so existing callers (AttachedFormsSection / ClientDetailPage /
+   * ClientsPage) keep their behaviour. The dashboard passes "mine"
+   * when the user toggles to "My tasks".
+   *
+   * When `scope === "mine"`, the snapshot filters rows where
+   * `assignedBookkeeperId !== currentUserId` and the caller MUST
+   * pass the current user's uid via `currentUserId`.
+   */
+  scope?: "mine" | "all";
+  currentUserId?: string;
+}
+
+export function useClientFormTasks(
+  clientId: string | undefined,
+  options: UseClientFormTasksOptions = {},
+) {
+  const { scope = "all", currentUserId = "" } = options;
   const qc = useQueryClient();
   const key = clientFormTasksQueryKey(clientId);
 
   useEffect(() => {
     if (!clientId) return;
-    const q = query(
-      collection(db, "clientFormTasks"),
+    const constraints = [
       where("clientId", "==", clientId),
       where("archived", "==", false),
+    ];
+    if (scope === "mine" && currentUserId) {
+      constraints.push(where("assignedBookkeeperId", "==", currentUserId));
+    }
+    const q = query(
+      collection(db, "clientFormTasks"),
+      ...constraints,
       orderBy("deadlineDate", "asc"),
     );
     const unsub = onSnapshot(
@@ -153,7 +178,7 @@ export function useClientFormTasks(clientId: string | undefined) {
       },
     );
     return unsub;
-  }, [clientId, key, qc]);
+  }, [clientId, currentUserId, key, qc, scope]);
 
   return useQuery<ClientFormTaskRow[]>({
     queryKey: key,
