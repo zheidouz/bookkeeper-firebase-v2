@@ -41,6 +41,7 @@ import StatusBadge from "@/features/clientFormTasks/StatusBadge";
 import StatusActions from "@/features/clientFormTasks/StatusActions";
 import EditTaskDialog from "@/features/clientFormTasks/EditTaskDialog";
 import ArchiveTaskDialog from "@/features/clientFormTasks/ArchiveTaskDialog";
+import AttachedFilesCard from "@/features/tasks/AttachedFilesCard";
 import {
   computeLegalActions,
   isOverdue,
@@ -495,6 +496,10 @@ export default function TaskDetailPage() {
           )}
         </div>
       </Card>
+
+      <div data-testid="attached-files-row" data-task-id={taskId}>
+        <AttachedFilesCard taskId={taskId} readOnly={readOnly} />
+      </div>
 
       {editOpen ? (
         live ? (
