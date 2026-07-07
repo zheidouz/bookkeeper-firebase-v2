@@ -1,8 +1,36 @@
 rules_version = '2';
 
-// Locked-down placeholder. Storage is deny-all until later slices open it.
+// Slice #16: task-scoped Storage rules for slice #16 file upload + signed URLs.
+//
+// Path scheme: tasks/{taskId}/files/{fileId}
+//
+// Reads: any authenticated user. Clients do not read directly from this
+// path — `getFileUrl` returns a signed URL from the caller's authenticated
+// context; the Storage rules still gate the path itself so the bucket is
+// not anonymously readable if a signed URL ever leaks.
+//
+// Writes / deletes: caller must be (admin via the `role` custom claim)
+// OR the bookkeeper assigned to the parent `clientFormTasks/{taskId}`.
+// That lookup uses `get()` against the Firestore doc, which requires a
+// `(default)` Firestore database reference (the brief's `$(database)`).
+
 service firebase.storage {
   match /b/{bucket}/o {
+    match /tasks/{taskId}/files/{fileId} {
+      allow read: if request.auth != null;
+
+      allow write, delete: if request.auth != null && (
+        request.auth.token.role == 'admin'
+        || (
+          request.auth.uid == get(
+            /databases/$(database)/documents/clientFormTasks/$(taskId)
+          ).data.assignedBookkeeperId
+        )
+      );
+    }
+
+    // Default deny for everything else (deny-all placeholder for paths
+    // that aren't part of slice #16).
     match /{allPaths=**} {
       allow read, write: if false;
     }

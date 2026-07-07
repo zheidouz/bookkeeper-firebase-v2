@@ -41,3 +41,15 @@ export const archiveTaskSchema = z.object({
 export type UserCreateInput = z.infer<typeof userCreateSchema>;
 export type UserRoleInput = z.infer<typeof userRoleSchema>;
 export type ArchiveTaskInput = z.infer<typeof archiveTaskSchema>;
+
+// Slice #16: file upload + signed-URL shared schemas.
+export const getFileUrlSchema = z.object({
+  taskId: z.string().min(1),
+  fileId: z.string().min(1),
+});
+export const deleteFileSchema = z.object({
+  taskId: z.string().min(1),
+  fileId: z.string().min(1),
+});
+export type GetFileUrlInput = z.infer<typeof getFileUrlSchema>;
+export type DeleteFileInput = z.infer<typeof deleteFileSchema>;
