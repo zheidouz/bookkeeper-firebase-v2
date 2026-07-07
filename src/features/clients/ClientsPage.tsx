@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import TableStates from "@/components/TableStates";
 import {
   Card,
   CardContent,
@@ -60,7 +61,7 @@ function bookkeeperLabel(id: string, map: Map<string, string>): string {
 
 export default function ClientsPage() {
   const { role, status: authStatus } = useAuth();
-  const { data: clients, isLoading } = useClients();
+  const { data: clients, isLoading, error } = useClients();
   const { data: bookkeepers } = useBookkeepers();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -172,29 +173,18 @@ export default function ClientsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-slate-500"
-                  >
-                    Loading…
-                  </TableCell>
-                </TableRow>
-              )}
-              {!isLoading && filtered.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-slate-500"
-                  >
-                    No clients match your filters yet.{" "}
-                    {canWrite
-                      ? "Create the first one."
-                      : "Ask a bookkeeper to add one."}
-                  </TableCell>
-                </TableRow>
-              )}
+              <TableStates
+                isLoading={isLoading}
+                error={error as Error | null}
+                isEmpty={!isLoading && filtered.length === 0}
+                colSpan={7}
+                emptyTitle="No clients match your filters yet"
+                emptyHint={
+                  canWrite
+                    ? "Create the first one."
+                    : "Ask a bookkeeper to add one."
+                }
+              />
               {pageRows.map((c) => (
                 <TableRow
                   key={c.id}

@@ -41,6 +41,7 @@ import StatusBadge from "@/features/clientFormTasks/StatusBadge";
 import StatusActions from "@/features/clientFormTasks/StatusActions";
 import EditTaskDialog from "@/features/clientFormTasks/EditTaskDialog";
 import ArchiveTaskDialog from "@/features/clientFormTasks/ArchiveTaskDialog";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import AttachedFilesCard from "@/features/tasks/AttachedFilesCard";
 import {
   computeLegalActions,
@@ -131,6 +132,9 @@ export default function TaskDetailPage() {
   const [notesSavedAt, setNotesSavedAt] = useState<Date | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  // Slice #18: dedicated state for the ConfirmDialog that replaces
+  // the old `window.confirm()` delete-prompt.
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   // Sync local notes with the doc's notes once the data arrives.
   useEffect(() => {
@@ -306,17 +310,8 @@ export default function TaskDetailPage() {
                 size="sm"
                 variant="outline"
                 className="text-rose-700"
-                onClick={async () => {
-                  if (!taskId) return;
-                  if (!window.confirm("Delete this pending task?")) return;
-                  try {
-                    const { deleteDoc } = await import("firebase/firestore");
-                    await deleteDoc(doc(db, "clientFormTasks", taskId));
-                    handleAfterAction();
-                    navigate("/tasks");
-                  } catch (err) {
-                    console.error(err);
-                  }
+                onClick={() => {
+                  setDeleteOpen(true);
                 }}
                 data-testid="action-delete"
               >
@@ -529,6 +524,21 @@ export default function TaskDetailPage() {
           />
         ) : null
       ) : null}
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete this pending task?"
+        description="The task doc and its audit history row will be removed. This cannot be undone. The next task in the recurrence is NOT affected — only this row goes."
+        actionLabel="Delete task"
+        actionVariant="destructive"
+        onConfirm={async () => {
+          if (!taskId) return;
+          const { deleteDoc } = await import("firebase/firestore");
+          await deleteDoc(doc(db, "clientFormTasks", taskId));
+          handleAfterAction();
+          navigate("/tasks");
+        }}
+      />
     </div>
   );
 }

@@ -18,7 +18,7 @@ export default function TopBar() {
   return (
     <header
       data-testid="top-bar"
-      className="flex h-14 items-center justify-between border-b bg-white px-6"
+      className="flex h-14 items-center justify-between border-b bg-white px-4 sm:px-6 md:pl-6"
     >
       <div className="text-base font-semibold text-slate-900">
         Bookkeeper Dashboard
