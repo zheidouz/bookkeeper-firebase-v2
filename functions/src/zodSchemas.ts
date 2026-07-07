@@ -53,3 +53,12 @@ export const deleteFileSchema = z.object({
 });
 export type GetFileUrlInput = z.infer<typeof getFileUrlSchema>;
 export type DeleteFileInput = z.infer<typeof deleteFileSchema>;
+
+// Slice #17: support_reindex_stats stub schema.
+export const supportReindexStatsSchema = z.object({
+  years: z.array(z.number().int().min(2000).max(2100)).optional(),
+  since: z.string().datetime().optional(),
+});
+export type SupportReindexStatsInput = z.infer<
+  typeof supportReindexStatsSchema
+>;

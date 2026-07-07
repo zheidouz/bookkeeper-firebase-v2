@@ -16,3 +16,4 @@ export { archiveTask } from "./archiveTask.js";
 export { reconcileOverdueArchives } from "./reconcileOverdueArchives.js";
 export { getFileUrl } from "./getFileUrl.js";
 export { deleteFile } from "./deleteFile.js";
+export { supportReindexStats } from "./supportReindexStats.js";
