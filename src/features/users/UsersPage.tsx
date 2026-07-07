@@ -4,6 +4,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import TableStates from "@/components/TableStates";
 import {
   Card,
   CardContent,
@@ -42,7 +43,7 @@ function formatCreated(ts: { toDate?: () => Date } | null | undefined): string {
 
 export default function UsersPage() {
   const { role, status } = useAuth();
-  const { data: users, isLoading } = useUsers();
+  const { data: users, isLoading, error } = useUsers();
   const [createOpen, setCreateOpen] = useState(false);
 
   if (status === "loading") {
@@ -99,23 +100,14 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-500">
-                    Loading…
-                  </TableCell>
-                </TableRow>
-              )}
-              {!isLoading && (users?.length ?? 0) === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-slate-500"
-                  >
-                    No users yet. Create the first one.
-                  </TableCell>
-                </TableRow>
-              )}
+              <TableStates
+                isLoading={isLoading}
+                error={error as Error | null}
+                isEmpty={!isLoading && (users?.length ?? 0) === 0}
+                colSpan={6}
+                emptyTitle="No users yet"
+                emptyHint="Create the first one."
+              />
               {users?.map((u) => (
                 <TableRow key={u.id} data-testid={`user-row-${u.id}`}>
                   <TableCell className="font-medium">{u.name ?? "—"}</TableCell>

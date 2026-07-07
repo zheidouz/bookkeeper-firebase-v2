@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import LoginPage from "@/features/auth/LoginPage";
 import RequireAuth from "@/features/auth/RequireAuth";
 import NotFound from "@/routes/NotFound";
+import SettingsPlaceholder from "@/routes/SettingsPlaceholder";
 import DashboardPage from "@/features/dashboard/DashboardPage";
 import UsersPage from "@/features/users/UsersPage";
 import TaxFormsPage from "@/features/taxForms/TaxFormsPage";
@@ -74,7 +75,7 @@ const router = createBrowserRouter([
           { path: "/tasks/:taskId", element: <TaskDetailPageWithSuspense /> },
           { path: "/archive", element: <ArchivePageWithSuspense /> },
           { path: "/users", element: <UsersPage /> },
-          { path: "/settings", element: <NotFound /> },
+          { path: "/settings", element: <SettingsPlaceholder /> },
           { path: "*", element: <NotFound /> },
         ],
       },

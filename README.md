@@ -162,7 +162,98 @@ staff see a read-only list. Search filters by business name, owner name,
 or TIN. Client-side pagination at 25 rows per page. The "Show archived"
 toggle controls whether archived rows (grey + italic) appear in the list.
 The detail view at `/clients/:id` shows the full record + Edit button,
-plus a placeholder **Attached forms** section that slice #8 populates.
+attached forms, and per-task actions (slice #8).
+
+## Polish + critical e2e (slice #18)
+
+Slice #18 ships the shared UX primitives that previous per-slice pages
+re-implemented ad-hoc:
+
+- **`src/components/AsyncBoundary.tsx`** — full-page loading / empty /
+  error wrapper. Each state has its own `data-testid` so e2e + vitest
+  can pin to it precisely.
+- **`src/components/TableStates.tsx`** — table-cell equivalent for
+  loading / empty / error rows inside a `<tbody>`. Replaces the
+  inline conditional `<tr>` blocks in ClientsPage, UsersPage, and
+  TaxFormsPage.
+- **`src/components/ConfirmDialog.tsx`** — Radix dialog replacing
+  `window.confirm()` for destructive actions. Async-safe (button
+  shows "Working…" while the callback runs; on rejection, surfaces
+  the error inline and stays open). Wired into the admin Delete
+  action on `TaskDetailPage`.
+- **`<Sidebar />`** polish — keyboard-navigable via `NavLink` /
+  `aria-current="page"`, mobile drawer with hamburger toggle +
+  click-outside overlay, auto-close on viewport widen.
+- **`<SettingsPlaceholder />`** — `/settings` route now renders a
+  "coming soon" card so the sidebar link doesn't dead-end.
+
+Responsive pass:
+
+- `AppShell` and `TopBar` use `p-4 sm:p-6` / `px-4 sm:px-6 md:pl-6`
+  so the main content area fits a 375px-wide viewport.
+- Tables stay full-width but shrink columns / use horizontal scroll
+  on narrow screens (no per-cell toggle to keep the diff focused).
+
+Playwright smoke:
+
+- `playwright.config.ts` + `tests/e2e/smoke.spec.ts` cover three
+  end-to-end checks at a 375px-wide viewport:
+  1. unauth user lands on `/` gets bounced to `/login`,
+  2. the `/login` form is rendered,
+  3. the mobile sidebar toggle is reachable.
+
+  The brief's full 5-path critical-e2e suite (login as admin → create
+  user → logout → login as new user, the bookkeeper-attaches-completes-
+  archives-next-task round-trip, role-restricted reads, etc.) is out of
+  scope for this slice — it depends on a stable
+  Firebase-emulator-vite-Playwright bridge that the codebase does
+  not yet have. Future slices can extend the seed spec.
+
+Run the e2e:
+
+```
+npm run emulators                 # one terminal
+VITE_USE_EMULATOR=true npm run dev # another
+npx playwright install chromium    # first time only
+npm run test:e2e
+```
+
+## Screenshot tour
+
+Capture screenshots in CI or locally with:
+
+```
+npx playwright test --update-snapshots  # (future)
+# ad-hoc: open in Playwright codegen, capture, commit to docs/screenshots/
+```
+
+Planned layout (add 1x per page as the app stabilises; current
+`/workspace/screenshots` is reserved for hand-captured PNGs):
+
+- `01-login.png`
+- `02-dashboard.png` (the 8 cards with seeded data)
+- `03-tasks-table.png`
+- `04-task-detail.png`
+- `05-clients.png` + `06-client-detail.png`
+- `07-tax-forms.png`
+- `08-users.png`
+- `09-archive.png`
+- `10-settings.png` (coming-soon)
+
+## Deploy checklist
+
+Production deploy (one-time setup):
+
+1. `firebase login && firebase use <project-id>` (NOT the demo project).
+2. Create the production `.env` with real Vite-side Firebase config
+   (apiKey, authDomain, projectId, storageBucket, …). Gitignored.
+3. Build the Functions bundle (`npm run functions:build`) — `firebase
+   deploy` runs this automatically as the `predeploy` step.
+4. `firebase deploy` — deploys rules, indexes, storage rules,
+   functions, and the Vite-built hosting bundle in order.
+5. Smoke: visit the deployed `/login`, sign in as the seeded admin,
+   confirm the dashboard renders the 8 cards with the seeded clients.
+
 Firestore rules (`firestore.rules`) grant read on non-archived clients
 to any signed-in user, list access to anyone signed in, create/update
 to bookkeeper + admin, and hard delete to admin only.

@@ -9,6 +9,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import TableStates from "@/components/TableStates";
 import {
   Card,
   CardContent,
@@ -68,7 +69,7 @@ function applyFilters(
 
 export default function TaxFormsPage() {
   const { role, status } = useAuth();
-  const { data: forms, isLoading } = useTaxForms();
+  const { data: forms, isLoading, error } = useTaxForms();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -194,26 +195,14 @@ export default function TaxFormsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-slate-500"
-                  >
-                    Loading…
-                  </TableCell>
-                </TableRow>
-              )}
-              {!isLoading && filtered.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-slate-500"
-                  >
-                    No forms match your filters yet. Try importing the seed.
-                  </TableCell>
-                </TableRow>
-              )}
+              <TableStates
+                isLoading={isLoading}
+                error={error as Error | null}
+                isEmpty={!isLoading && filtered.length === 0}
+                colSpan={6}
+                emptyTitle="No forms match your filters yet"
+                emptyHint="Try importing the seed."
+              />
               {pageRows.map((form) => (
                 <TableRow
                   key={form.id}
